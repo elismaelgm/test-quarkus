@@ -1,13 +1,18 @@
 package org.desafio.service;
 
 import jakarta.transaction.Transactional;
+import org.desafio.dto.AlterarCvvRequestDTO;
 import org.desafio.dto.CartaoDTO;
 import org.desafio.entity.*;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.desafio.enums.MotivoReemissao;
+import org.desafio.enums.Processadora;
+import org.desafio.enums.TipoCartao;
 import org.desafio.repository.CartaoRepository;
 import org.desafio.repository.ClienteRepository;
+import org.desafio.repository.ContaRepository;
 import org.desafio.util.CartaoGenerator;
 
 import java.util.List;
@@ -18,6 +23,9 @@ public class CartaoService {
 
     @Inject
     ClienteRepository clienteRepository;
+
+    @Inject
+    ContaRepository contaRepository;
 
     @Inject
     CartaoRepository cartaoRepository;
@@ -83,15 +91,22 @@ public class CartaoService {
     }
 
     @Transactional
-    public CartaoEntity geracartaoFisico(ContaEntity conta) {
+    public CartaoDTO solicitarCartaoFisico(String numeroConta) {
+
+        ContaEntity conta = contaRepository.findByNumero(numeroConta);
+        if (conta == null) {
+            throw new IllegalArgumentException("Conta nao encontrada.");
+        }
+
         CartaoEntity cartaoFisico = new CartaoEntity();
         cartaoFisico.setNumero(CartaoGenerator.gerarNumeroCartao());
         cartaoFisico.setValidade(CartaoGenerator.gerarDataValidade());
         cartaoFisico.setCvv(CartaoGenerator.gerarCVV());
         cartaoFisico.setTipo(TipoCartao.FISICO);
         cartaoFisico.setConta(conta);
+        cartaoFisico.setProcessadora(Processadora.VISA.getCodigo()); // Alterar para deixar dinamico
         cartaoRepository.persist(cartaoFisico);
-        return cartaoFisico;
+        return toCartaoDTO(cartaoFisico);
     }
 
     @Transactional
@@ -125,6 +140,7 @@ public class CartaoService {
         novoCartaoFisico.setCvv(CartaoGenerator.gerarCVV());
         novoCartaoFisico.setTipo(TipoCartao.FISICO);
         novoCartaoFisico.setConta(cartaoFisico.getConta());
+        novoCartaoFisico.setProcessadora(cartaoFisico.getProcessadora());
         cartaoRepository.persist(novoCartaoFisico);
 
         cancelarCartaoFisico(numeroCartaoFisico);
@@ -149,6 +165,16 @@ public class CartaoService {
         // Cancelar o cartão físico
         cartaoFisico.setAtivo(false);
         cartaoRepository.persist(cartaoFisico);
+    }
+
+    @Transactional
+    public void alterarCvv(AlterarCvvRequestDTO request) {
+        CartaoEntity cartao = cartaoRepository.findByNumeroAndAtivo(request.getCardId());
+        if (cartao == null) {
+            throw new IllegalArgumentException("Cartão não encontrado.");
+        }
+        cartao.setCvv(request.getNextCvv());
+        cartaoRepository.persist(cartao);
     }
 
     private CartaoDTO toCartaoDTO(CartaoEntity cartao) {

@@ -1,14 +1,15 @@
 package org.desafio.resource;
 
+import jakarta.validation.Valid;
 import jakarta.ws.rs.core.Response;
+import org.desafio.dto.AlterarCvvRequestDTO;
 import org.desafio.dto.CartaoDTO;
-import org.desafio.entity.MotivoReemissao;
+import org.desafio.enums.MotivoReemissao;
 import org.desafio.service.CartaoService;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.desafio.util.JWTUtil;
 import org.desafio.util.TokenRequired;
 
 import java.util.List;
@@ -55,6 +56,18 @@ public class CartaoResource {
         return Response.status(Response.Status.CREATED).entity(cartaoVirtual).build();
     }
 
+    @POST
+    @Path("/solicitarFisico")
+    @TokenRequired
+    public Response solicitarCartaoFisico(
+            @HeaderParam("Authorization") String authHeader,
+            @QueryParam("numeroConta") String numeroCartao,
+            @QueryParam("numeroConta") String bandeira) {
+        CartaoDTO cartaoFisico = cartaoService.solicitarCartaoFisico(numeroCartao);
+        return Response.status(Response.Status.CREATED).entity(cartaoFisico).build();
+    }
+
+
     @PUT
     @Path("/alterarCvvCartaoDigital")
     @TokenRequired
@@ -62,6 +75,14 @@ public class CartaoResource {
             @HeaderParam("Authorization") String authHeader,
             @QueryParam("numeroCartao") String numeroCartao) {
         cartaoService.alterarCvvCartaoDigital(numeroCartao);
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/alterarCvv")
+    @TokenRequired
+    public Response alterarCvv(@HeaderParam("Authorization") String authHeader,@Valid AlterarCvvRequestDTO request) {
+        cartaoService.alterarCvv(request);
         return Response.ok().build();
     }
 

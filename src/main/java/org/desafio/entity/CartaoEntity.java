@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.desafio.enums.TipoCartao;
 
 import java.util.Objects;
 
@@ -50,6 +51,10 @@ public class CartaoEntity {
     @ManyToOne
     @JoinColumn(name = "cartao_fisico_id")
     private CartaoEntity cartaoFisico;
+
+    @NotNull(message = "Processadora é obrigatória")
+    @Column(name = "id_processadora", nullable = false)
+    private int processadora;
 
     @Override
     public boolean equals(Object o) {

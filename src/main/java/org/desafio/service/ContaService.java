@@ -32,7 +32,7 @@ public class ContaService {
     public ContaDTO gerarConta(String cpfCnpj) {
         ClienteEntity cliente = clienteRepository.findByCpfCnpj(cpfCnpj);
         if (cliente == null) {
-            throw new IllegalArgumentException("Cliente não encontrado.");
+            throw new IllegalArgumentException("Cliente nao encontrado.");
         }
         ContaEntity conta = new ContaEntity();
         conta.setDataAbertura(new Date());
@@ -41,10 +41,6 @@ public class ContaService {
 
         cliente.getContas().add(conta);
         clienteRepository.persist(cliente);
-
-        CartaoEntity cartaoFisico = cartaoService.geracartaoFisico(conta);
-
-        conta.getCartoes().add(cartaoFisico);
 
         return toDTO(conta);
     }
@@ -63,12 +59,12 @@ public class ContaService {
     public void associarConta(String cpfCnpj, String numeroConta) {
         ClienteEntity cliente = clienteRepository.findByCpfCnpj(cpfCnpj);
         if (cliente == null) {
-            throw new IllegalArgumentException("Cliente não encontrado.");
+            throw new IllegalArgumentException("Cliente nao encontrado.");
         }
 
         ContaEntity conta = contaRepository.findByNumero(numeroConta);
         if (conta == null) {
-            throw new IllegalArgumentException("Conta não encontrada.");
+            throw new IllegalArgumentException("Conta nao encontrada.");
         }
 
         cliente.getContas().add(conta);
@@ -79,7 +75,7 @@ public class ContaService {
     public List<ClienteDTO> listarClientesPorNumeroConta(String numeroConta) {
         ContaEntity conta = contaRepository.findByNumero(numeroConta);
         if (conta == null) {
-            throw new IllegalArgumentException("Conta não encontrada.");
+            throw new IllegalArgumentException("Conta nao encontrada.");
         }
         return conta.getClientes().stream().map(this::toDTO).collect(Collectors.toList());
     }
@@ -88,7 +84,7 @@ public class ContaService {
     public void desabilitarConta(String numeroConta) {
         ContaEntity conta = contaRepository.findByNumero(numeroConta);
         if (conta == null) {
-            throw new IllegalArgumentException("Conta não encontrada.");
+            throw new IllegalArgumentException("Conta nao encontrada.");
         }
 
         conta.setAtivo(false);

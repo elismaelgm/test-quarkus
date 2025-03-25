@@ -24,7 +24,7 @@ public class ClienteService {
     @Transactional
     public ClienteInsertDTO cadastrarCliente(ClienteInsertDTO clienteDTO) {
         if (clienteRepository.find("cpfCnpj", clienteDTO.cpfCnpj).firstResult() != null) {
-            throw new IllegalArgumentException("CPF/CNPJ já cadastrado.");
+            throw new IllegalArgumentException("CPF/CNPJ ja cadastrado.");
         }
         ClienteEntity cliente = toEntity(clienteDTO);
         clienteRepository.persist(cliente);

@@ -1,4 +1,4 @@
-package org.desafio.entity;
+package org.desafio.enums;
 
 public enum TipoCartao {
     FISICO,
